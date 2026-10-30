@@ -17,8 +17,11 @@ const countdownImg = document.getElementById('countdown-img');
 const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
 const settingsPanel = document.getElementById('settings-panel');
 
-let words = [];
-let currentWordIndex = 0;
+let currentEquationText = "";
+let targetAnswer = "";
+let equationsSolved = 0;
+const totalEquationsToWin = 10;
+
 let isListening = false;
 let isGameOver = false;
 let isBoulderPaused = false;
@@ -29,46 +32,11 @@ let snailPos = 50;
 let boulderInterval;
 let snailFrame = 1;
 
-// Function to generate random single-digit math expressions
-function generateMathExpression() {
-    const ops = ['+', '-', '*', '/'];
-    const op = ops[Math.floor(Math.random() * ops.length)];
-    let a = Math.floor(Math.random() * 10);
-    let b = Math.floor(Math.random() * 10);
-    
-    // Avoid division by zero
-    if (op === '/' && b === 0) {
-        b = Math.floor(Math.random() * 9) + 1;
-    }
-    
-    let result;
-    if (op === '+') result = a + b;
-    else if (op === '-') result = a - b;
-    else if (op === '*') result = a * b;
-    else if (op === '/') {
-        result = a / b;
-        if (!Number.isInteger(result)) {
-            result = Number(result.toFixed(2)); // Support decimals up to 2 places
-        }
-    }
-    
-    let displayOp = op;
-    if (op === '*') displayOp = '×';
-    if (op === '/') displayOp = '÷';
-    
-    return `${a} ${displayOp} ${b} = ${result}`;
-}
-
-// Generate 50 default math expressions
-let sentences = [];
-for (let i = 0; i < 50; i++) {
-    sentences.push(generateMathExpression());
-}
-
-let currentSentenceIndex = 0;
+let customEquations = [];
+let customIndex = 0;
 
 window.addEventListener('load', () => {
-    loadSentence();
+    loadNewProblem();
 });
 
 // Panel Toggle Logic
@@ -81,66 +49,89 @@ toggleSettingsBtn.addEventListener('click', () => {
 updateBtn.addEventListener('click', () => {
     const inputContent = inputField.value.trim();
     if (inputContent) {
-        sentences = inputContent.split('\n').filter(s => s.trim() !== "");
-        currentSentenceIndex = 0;
+        customEquations = inputContent.split('\n').filter(s => s.trim() !== "");
+        customIndex = 0;
     }
-    loadSentence();
+    equationsSolved = 0;
+    loadNewProblem();
     settingsPanel.style.display = 'none';
     toggleSettingsBtn.innerText = 'Show Setup';
 });
 
+// Clean spoken words/numbers into standardized strings
 function clean(str) {
     if (!str) return "";
     let s = str.toLowerCase().trim();
 
     const map = {
-        "zero": "0", "0": "0",
-        "one": "1", "1": "1",
-        "two": "2", "2": "2",
-        "three": "3", "3": "3",
-        "four": "4", "4": "4",
-        "five": "5", "5": "5",
-        "six": "6", "6": "6",
-        "seven": "7", "7": "7",
-        "eight": "8", "8": "8",
-        "nine": "9", "9": "9",
-        "ten": "10", "10": "10",
-        "plus": "+", "+": "+", "add": "+", "and": "+",
-        "minus": "-", "-": "-", "negative": "-", "take": "-",
-        "times": "×", "multiplied": "×", "multiply": "×", "x": "×", "*": "×", "×": "×",
-        "divided": "÷", "divide": "÷", "over": "÷", "/": "÷", "÷": "÷",
-        "equals": "=", "equal": "=", "is": "=", "=": "="
+        "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4",
+        "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9",
+        "ten": "10", "minus": "-", "negative": "-"
     };
 
     if (map[s]) return map[s];
 
-    s = s.replace(/[^a-z0-9\s.\-+×÷]/g, "").replace(/\s+/g, " ").trim();
-    return map[s] || s;
+    // Remove unwanted characters except numbers, dots, and minus signs
+    s = s.replace(/[^0-9.\-]/g, "");
+    return s;
 }
 
-function loadSentence() {
-    const text = sentences[currentSentenceIndex].trim();
+// Generate a random single-digit math expression
+function generateRandomProblem() {
+    const ops = ['+', '-', '*', '/'];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    let a = Math.floor(Math.random() * 10);
+    let b = Math.floor(Math.random() * 10);
+    
+    if (op === '/' && b === 0) b = Math.floor(Math.random() * 9) + 1;
+    
+    let result;
+    if (op === '+') result = a + b;
+    else if (op === '-') result = a - b;
+    else if (op === '*') result = a * b;
+    else if (op === '/') {
+        result = a / b;
+        if (!Number.isInteger(result)) result = Number(result.toFixed(2));
+    }
+    
+    let displayOp = op;
+    if (op === '*') displayOp = '×';
+    if (op === '/') displayOp = '÷';
+    
+    return {
+        display: `${a} ${displayOp} ${b} =`,
+        answer: result.toString()
+    };
+}
 
-    container.innerHTML = "";
-    currentWordIndex = 0;
+// Parse custom line like "5 + 3 = 8" or "5 + 3"
+function parseCustomProblem(line) {
+    if (line.includes('=')) {
+        let parts = line.split('=');
+        let display = parts[0].trim() + " =";
+        let answer = Number(eval(parts[0].trim())).toString();
+        return { display, answer };
+    } else {
+        let answer = Number(eval(line)).toString();
+        return { display: line + " =", answer };
+    }
+}
+
+function loadNewProblem() {
+    let problem;
+    if (customEquations.length > 0) {
+        let line = customEquations[customIndex];
+        problem = parseCustomProblem(line);
+        customIndex = (customIndex + 1) % customEquations.length;
+    } else {
+        problem = generateRandomProblem();
+    }
+
+    currentEquationText = problem.display;
+    targetAnswer = problem.answer;
+
+    container.innerHTML = `<span class="word active" style="font-size: 40px; color: #34495e;">${currentEquationText} ?</span>`;
     isGameOver = false;
-    words = text.split(" ");
-
-    words.forEach((word, index) => {
-        const span = document.createElement('span');
-        span.innerText = word + (index < words.length - 1 ? " " : "");
-        span.className = 'word';
-        span.id = `word-${index}`;
-        span.dataset.cleanWord = clean(word);
-        container.appendChild(span);
-    });
-
-    document.getElementById('word-0').classList.add('active');
-
-    boulderPos = -200;
-    snailPos = 50;
-    boulder.style.left = boulderPos + 'px';
-    snail.style.left = snailPos + 'px';
     transcriptDisplay.innerText = "Transcript: ";
 }
 
@@ -149,9 +140,7 @@ nextBtn.addEventListener('click', () => {
     clearInterval(boulderInterval);
     isListening = false;
     btn.innerText = "Start Game";
-    
-    currentSentenceIndex = (currentSentenceIndex + 1) % sentences.length;
-    loadSentence();
+    loadNewProblem();
 });
 
 setInterval(() => {
@@ -188,42 +177,30 @@ recognition.onresult = (event) => {
     let latestResult = event.results[event.results.length - 1][0].transcript.toLowerCase();
     transcriptDisplay.innerText = "I heard: " + latestResult;
 
-    let target = document.getElementById(`word-${currentWordIndex}`).dataset.cleanWord;
-    let spoken = clean(latestResult);
+    let spokenAnswer = clean(latestResult);
 
-    if (spoken === target || spoken.includes(target)) {
-        const wordElement = document.getElementById(`word-${currentWordIndex}`);
-        if (wordElement && !wordElement.classList.contains('correct')) {
-            wordElement.className = 'word correct';
-            snailPos += 20;
-            snail.style.left = snailPos + 'px';
-            currentWordIndex++;
-            isBoulderPaused = false;
+    // Check if the spoken answer matches the correct target answer
+    if (spokenAnswer === targetAnswer && spokenAnswer !== "") {
+        snailPos += 30; // Move snail forward for a correct answer
+        snail.style.left = snailPos + 'px';
+        equationsSolved++;
+        isBoulderPaused = false;
 
-            if (currentWordIndex < words.length) {
-                document.getElementById(`word-${currentWordIndex}`).classList.add('active');
-            } else {
-                recognition.stop();
-                clearInterval(boulderInterval);
-                victoryScreen.style.display = 'flex';
-            }
+        if (equationsSolved < totalEquationsToWin) {
+            loadNewProblem();
+        } else {
+            recognition.stop();
+            clearInterval(boulderInterval);
+            victoryScreen.style.display = 'flex';
         }
     }
 };
 
 document.getElementById('readBtn').addEventListener('click', () => {
-    const currentWordEl = document.getElementById(`word-${currentWordIndex}`);
-    if (!currentWordEl) return;
     isBoulderPaused = true;
     clearInterval(boulderInterval);
     
-    let textToRead = currentWordEl.innerText.trim();
-    if (textToRead === '+') textToRead = "plus";
-    else if (textToRead === '-') textToRead = "minus";
-    else if (textToRead === '×') textToRead = "times";
-    else if (textToRead === '÷') textToRead = "divided by";
-    else if (textToRead === '=') textToRead = "equals";
-
+    let textToRead = currentEquationText.replace('×', 'times').replace('÷', 'divided by').replace('=', 'equals');
     const utterance = new SpeechSynthesisUtterance(textToRead);
     utterance.onend = () => {
         isBoulderPaused = false;
@@ -248,7 +225,6 @@ function runCountdown(callback) {
 }
 
 btn.addEventListener('click', () => {
-    if (words.length === 0) return alert("Load an equation first!");
     if (isListening) {
         recognition.stop();
         btn.innerText = "Start Game";
@@ -257,7 +233,10 @@ btn.addEventListener('click', () => {
         recognition.start();
         runCountdown(() => {
             isBoulderPaused = false;
-            if (isGameOver) loadSentence();
+            if (isGameOver) {
+                equationsSolved = 0;
+                loadNewProblem();
+            }
             startBoulder();
         });
         btn.innerText = "Stop Game";
@@ -267,14 +246,16 @@ btn.addEventListener('click', () => {
 
 restartBtn.addEventListener('click', () => {
     victoryScreen.style.display = 'none';
-    loadSentence();
+    equationsSolved = 0;
+    loadNewProblem();
     btn.innerText = "Start Game";
     isListening = false;
 });
 
 retryBtn.addEventListener('click', () => {
     gameOverScreen.style.display = 'none';
-    loadSentence();
+    equationsSolved = 0;
+    loadNewProblem();
     btn.innerText = "Start Game";
     isListening = false;
 });
