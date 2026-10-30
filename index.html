@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Math vs Boulder Run</title>
+</head>
+<body>
+
+    <div id="banner-container">
+        <img id="banner-img" src="banner.png" alt="Math vs Boulder Run Banner">
+    </div>
+
+    <div id="settings-panel" style="display: none; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px;">
+        <textarea id="userInput" placeholder="Type custom math equations here (one per line, e.g., 5 + 3 = 8)"></textarea>
+        <button id="updateBtn">Load Equations</button>
+    </div>
+
+    <div id="sentence-container"></div>
+    <div id="transcript-display" style="margin: 5px; font-style: italic; color: #555;">Transcript: </div>
+
+    <div id="countdown-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center;">
+        <img id="countdown-img" src="Number3.png" alt="Countdown" style="width: 200px;">
+    </div>
+
+    <div id="controls">
+        <button id="toggleSettingsBtn" class="secondary-btn">Show Setup</button>
+        <button id="toggleBtn">Start Game</button>
+        <button id="readBtn">Help</button>
+        <button id="nextBtn">Next Equation</button>
+    </div>
+
+    <div id="game-arena">
+        <img id="boulder" src="Boulder.png" alt="Rolling Boulder">
+        <img id="snail" src="snail1.png" alt="Snail">
+    </div>
+
+    <div id="victory-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; flex-direction: column; align-items: center; justify-content: center; z-index: 1000;">
+        <h1>Victory!</h1>
+        <p>You solved the math and escaped the boulder!</p>
+        <button id="restartBtn">Play Again</button>
+    </div>
+
+    <div id="game-over-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; flex-direction: column; align-items: center; justify-content: center; z-index: 1000;">
+        <h1 style="color: #e74c3c;">Game Over!</h1>
+        <p>The boulder caught the snail.</p>
+        <button id="retryBtn">Try Again</button>
+    </div>
+<script src="script.js"></script>
+</body>
+</html>
