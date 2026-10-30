@@ -1,0 +1,137 @@
+/* --- Global Styles --- */
+html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+body {
+    padding: 20px;
+}
+
+/* --- Banner --- */
+#banner-container {
+    position: relative;
+    width: 100%;
+    max-width: 650px;
+    margin: 0 auto;
+    overflow: hidden; 
+}
+
+#banner-img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* --- Settings Panel --- */
+#settings-panel {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#userInput {
+    width: 100%;
+    height: 80px;
+    padding: 20px;
+    font-size: 20px;
+    border-radius: 15px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* --- Game Arena --- */
+#game-arena {
+    position: relative;
+    width: 90%;
+    max-width: 650px;
+    height: 220px;
+    margin-top: 10px;
+    overflow: hidden;
+    background-image: url('Background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-bottom: 2px solid #8d6e63;
+}
+
+#snail, #boulder {
+    position: absolute;
+    bottom: 0;
+}
+
+#snail {
+    left: 50px;
+    width: 70px;
+    z-index: 8;
+    transition: all 0.3s ease;
+}
+
+#boulder {
+    left: -200px;
+    width: 100px;
+    z-index: 6;
+}
+
+/* --- Sentence Display --- */
+#sentence-container {
+    width: 90%;
+    max-width: 615px;
+    margin: 5px auto;
+    text-align: center;
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    font-size: 20px;
+}
+
+.word { color: #b0bec5; font-size: 40px; transition: all 0.3s ease; }
+.word.active { color: #34495e; text-shadow: 0 0 8px rgba(52, 152, 219, 0.5); font-weight: 800; }
+.correct { color: #2ecc71; }
+.wrong { color: #e74c3c; }
+
+/* --- Controls and Buttons --- */
+#controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 15px 30px;
+    font-size: 20px;
+    border: none;
+    border-radius: 30px;
+    background: #ff7043;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px #d84315;
+    transition: transform 0.1s;
+}
+
+button:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+.secondary-btn {
+    background: #3498db;
+    box-shadow: 0 6px #2980b9;
+}
+
+#restartBtn, #retryBtn {
+    background: #2ecc71;
+    box-shadow: 0 4px #27ae60;
+}
