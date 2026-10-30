@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Math vs Boulder Run</title>
+    <title>Math Solver vs Boulder Run</title>
 </head>
 <body>
 
@@ -13,7 +13,7 @@
     </div>
 
     <div id="settings-panel" style="display: none; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px;">
-        <textarea id="userInput" placeholder="Type custom math equations here (one per line, e.g., 5 + 3 = 8)"></textarea>
+        <textarea id="userInput" placeholder="Type custom equations (e.g. 5 + 3 = 8 or just 5 + 3), one per line"></textarea>
         <button id="updateBtn">Load Equations</button>
     </div>
 
@@ -38,7 +38,7 @@
 
     <div id="victory-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; flex-direction: column; align-items: center; justify-content: center; z-index: 1000;">
         <h1>Victory!</h1>
-        <p>You solved the math and escaped the boulder!</p>
+        <p>You solved 10 equations and escaped the boulder!</p>
         <button id="restartBtn">Play Again</button>
     </div>
 
